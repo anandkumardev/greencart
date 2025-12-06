@@ -17,7 +17,7 @@ export const register = async (req, res) => {
       return res.json({ success: false, message: "User already exists." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 20);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({ name, email, password: hashedPassword });
 
@@ -89,8 +89,7 @@ export const login = async (req, res) => {
 // Check Auth: /api/user/is-auth
 export const isAuth = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(req.userId).select("-password");
     return res.json({ success: true, user });
   } catch (error) {
     console.log(error.message);
