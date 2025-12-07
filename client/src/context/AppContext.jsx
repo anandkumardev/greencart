@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 // import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
-import axios from 'axios';
+import axios from "axios";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -21,49 +21,48 @@ export const AppContextProvider = ({ children }) => {
 
   const [searchQuery, setSearchQuery] = useState({});
 
-
   // Fetch Seller Status
   const fetchSeller = async () => {
     try {
-      const {data} = await axios.get('/api/seller/is-auth');
+      const { data } = await axios.get("/api/seller/is-auth");
 
-      if(data.success) {
-        setIsSeller(true)
+      if (data.success) {
+        setIsSeller(true);
       } else {
-        setIsSeller(false)
+        setIsSeller(false);
       }
     } catch (error) {
-      console.log(error.message)
-      setIsSeller(false)
+      console.log(error.message);
+      setIsSeller(false);
     }
-  }
+  };
 
-// Fetch User Status , User Data, Cart Items
-const fetchUser = async () => {
+  // Fetch User Status , User Data, Cart Items
+  const fetchUser = async () => {
     try {
-      const {data} = await axios.get('/api/user/is-auth');
+      const { data } = await axios.get("/api/user/is-auth");
 
-      if(data.success) {
-        setUser(data.user)
-        setCartItems(data.user.cartItems)
+      if (data.success) {
+        setUser(data.user);
+        setCartItems(data.user.cartItems);
       }
     } catch (error) {
-       setUser(null)
+      setUser(null);
     }
-  }
+  };
 
   //Fetch All Products
   const fetchProducts = async () => {
     try {
-      const {data} = await axios.get('/api/product/list')
+      const { data } = await axios.get("/api/product/list");
 
       if (data.success) {
-         setProducts(data.products);
+        setProducts(data.products);
       } else {
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-       toast.error(error.message)
+      toast.error(error.message);
     }
   };
 
@@ -101,28 +100,26 @@ const fetchUser = async () => {
     setCartItems(cartData);
   };
 
-
   //Get Cart item Count
-  const getCartCount =() =>{
+  const getCartCount = () => {
     let totalCount = 0;
-    for(const item in cartItems) {
+    for (const item in cartItems) {
       totalCount += cartItems[item];
     }
     return totalCount;
-  }
+  };
 
   //Get Cart Total Amount
   const getCartAmount = () => {
-    let  totalAmount = 0;
+    let totalAmount = 0;
     for (const items in cartItems) {
-      let  itemInfo = products.find((product) => product._id === items );
-      if(cartItems[items] > 0) {
-        totalAmount += itemInfo.offerPrice * cartItems[items]
+      let itemInfo = products.find((product) => product._id === items);
+      if (cartItems[items] > 0) {
+        totalAmount += itemInfo.offerPrice * cartItems[items];
       }
     }
     return Math.floor(totalAmount * 100) / 100;
-  }
-
+  };
 
   useEffect(() => {
     fetchUser();
@@ -131,22 +128,22 @@ const fetchUser = async () => {
   }, []);
 
   // Update Datebase Cart Items
-  useEffect(()=>  {
-    const updateCart = async ()=> {
+  useEffect(() => {
+    const updateCart = async () => {
       try {
-        const {data} = await axios.post('/api/cart/update', {cartItems})
-        if(!data.success){
-          toast.error(data.message)
+        const { data } = await axios.post("/api/cart/update", { cartItems });
+        if (!data.success) {
+          toast.error(data.message);
         }
       } catch (error) {
-        toast.error(error.message)
+        toast.error(error.message);
       }
-    }
+    };
 
-    if(user){
-      updateCart()
+    if (user) {
+      updateCart();
     }
-  },[cartItems])
+  }, [cartItems]);
 
   const value = {
     user,

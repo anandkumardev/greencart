@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets, dummyAddress } from "../assets/assets";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
@@ -12,12 +13,14 @@ const Cart = () => {
     updateCartItems,
     navigate,
     getCartAmount,
+    axios,
+    user,
   } = useAppContext();
 
   const [cartArray, setCartArray] = useState([]);
-  const [addresses, setAdresses] = useState(dummyAddress);
+  const [addresses, setAdresses] = useState([]);
   const [showAddress, setShowAddress] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
 
   const getCart = () => {
@@ -30,6 +33,22 @@ const Cart = () => {
     setCartArray(tempArray);
   };
 
+  const getUserAddress = async () => {
+    try {
+      const { data } = await axios.get("/api/address/get");
+      if (data.success) {
+        setAdresses(data.addresses);
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   const placeOrder = async () => {
     //come back to here
   };
@@ -39,6 +58,12 @@ const Cart = () => {
       getCart();
     }
   }, [products, cartItems]);
+
+  useEffect(() => {
+    if (user) {
+      getUserAddress();
+    }
+  }, [user]);
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-16 ">
@@ -84,7 +109,7 @@ const Cart = () => {
                   <div className="flex items-center">
                     <p>Qty:</p>
                     <select
-                      onChange={ e =>
+                      onChange={(e) =>
                         updateCartItems(product._id, Number(e.target.value))
                       }
                       value={cartItems[product._id]}
@@ -146,7 +171,7 @@ const Cart = () => {
           <div className="relative flex justify-between items-start mt-2">
             <p className="text-gray-500">
               {selectedAddress
-                ? `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country}`
+                ? `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country} - ${selectedAddress.zipcode}`
                 : "No address found"}
             </p>
             <button
@@ -159,6 +184,7 @@ const Cart = () => {
               <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
                 {addresses.map((address, index) => (
                   <p
+                    key={index}
                     onClick={() => {
                       setSelectedAddress(address);
                       setShowAddress(false);
@@ -166,7 +192,7 @@ const Cart = () => {
                     className="text-gray-500 p-2 hover:bg-gray-100"
                   >
                     {address.street}, {address.city}, {address.state},{" "}
-                    {address.country}
+                    {address.country} - {address.zipcode}
                   </p>
                 ))}
                 <p
