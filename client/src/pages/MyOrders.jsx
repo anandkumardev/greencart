@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 
 function MyOrders() {
-  const [MyOrders, setMyOrders] = useState([]);
+  const [myOrders, setMyOrders] = useState([]);
   const { currency, axios, user } = useAppContext();
 
   const fetchMyOrders = async () => {
@@ -28,7 +28,7 @@ function MyOrders() {
         <p className="text-2xl font-medium uppercase">My Orders</p>
         <div className="w-16 h-0.5 bg-primary rounded-full"></div>
       </div>
-      {MyOrders.map((order, index) => (
+      {myOrders.map((order, index) => (
         <div
           key={index}
           className="border border-gray-300 rounded-lg mb-10 p-4 py-5 max-w-4xl"
